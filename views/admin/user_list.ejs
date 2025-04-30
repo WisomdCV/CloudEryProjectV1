@@ -5,34 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= pageTitle %></title>
     <style>
-        body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }
+        body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; font-size: 14px; }
         .navbar { background-color: #343a40; padding: 0.8rem 1.5rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .navbar a { color: white; text-decoration: none; padding: 0.5rem; }
         .navbar .brand { font-size: 1.2rem; font-weight: bold; }
         .navbar .nav-links a { margin-left: 1rem; }
         .navbar .logout-link { background-color: #dc3545; border-radius: 4px; padding: 0.4rem 0.8rem; }
         .navbar .logout-link:hover { background-color: #c82333; }
-        .container { max-width: 1140px; margin: 0 auto; padding: 0 1rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
         h1 { color: #333; margin-bottom: 1rem; }
-        .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;}
-        .search-form { display: flex; gap: 0.5rem; }
-        .search-form input[type="text"] { padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
-        .search-form button { padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .search-form button:hover { background-color: #0056b3; }
-        .search-form a { padding: 0.5rem 1rem; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; line-height: 1.5; } /* Alineación vertical */
-        .search-form a:hover { background-color: #5a6268; }
-        .btn-create { padding: 0.6rem 1rem; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px; }
+
+        /* Controles Superiores */
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .search-create-group { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;}
+        #user-search { padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; min-width: 250px;}
+        .btn-create { padding: 0.6rem 1rem; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px; white-space: nowrap; }
         .btn-create:hover { background-color: #218838; }
-        table { width: 100%; border-collapse: collapse; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; } /* Añadido overflow */
-        th, td { padding: 0.9rem; text-align: left; border-bottom: 1px solid #dee2e6; }
-        th { background-color: #e9ecef; color: #495057; }
+
+        /* Paginación y Selector */
+        .pagination-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; gap: 1rem;}
+        .rows-per-page { display: flex; align-items: center; gap: 0.5rem; }
+        #rows-per-page-select { padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; }
+        .page-info { color: #6c757d; }
+        .page-buttons button {
+            padding: 0.4rem 0.8rem;
+            margin-left: 0.3rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .page-buttons button:hover:not(:disabled) { background-color: #0056b3; }
+        .page-buttons button:disabled { background-color: #6c757d; cursor: not-allowed; opacity: 0.7; }
+        .page-number-buttons button { background-color: #e9ecef; color: #007bff; }
+        .page-number-buttons button.active { background-color: #007bff; color: white; font-weight: bold; }
+        .page-number-buttons button:hover:not(.active) { background-color: #d4d9de; }
+
+
+        /* Tabla */
+        .table-container { overflow-x: auto; } /* Para tablas anchas en pantallas pequeñas */
+        table { width: 100%; border-collapse: collapse; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 0.9rem; text-align: left; border-bottom: 1px solid #dee2e6; white-space: nowrap; } /* Evitar saltos de línea indeseados */
+        th { background-color: #e9ecef; color: #495057; cursor: pointer; position: relative; user-select: none; /* Evitar selección de texto */}
+        th:hover { background-color: #d4d9de; }
+        /* Indicadores de ordenamiento */
+        th .sort-arrow {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            margin-left: 5px;
+            opacity: 0.3;
+            vertical-align: middle;
+        }
+        th.sort-asc .sort-arrow { border-bottom: 5px solid #333; opacity: 1; }
+        th.sort-desc .sort-arrow { border-top: 5px solid #333; opacity: 1; }
+
         tbody tr:hover { background-color: #f1f1f1; }
-        .actions a, .actions button { margin-right: 0.5rem; padding: 0.3rem 0.6rem; text-decoration: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .actions a, .actions button { margin-right: 0.5rem; padding: 0.3rem 0.6rem; text-decoration: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; white-space: nowrap; }
         .actions .btn-edit { background-color: #ffc107; color: #333; border: none; }
         .actions .btn-edit:hover { background-color: #e0a800; }
         .actions .btn-delete { background-color: #dc3545; color: white; border: none; }
         .actions .btn-delete:hover { background-color: #c82333; }
-        .no-users { text-align: center; padding: 2rem; color: #6c757d; }
+        .no-users { text-align: center; padding: 2rem; color: #6c757d; font-style: italic; }
+
+        /* Ocultar filas que no pertenecen a la página actual */
+        tbody tr.hidden-row { display: none; }
     </style>
 </head>
 <body>
@@ -49,59 +96,347 @@
     <div class="container">
         <h1><%= pageTitle %></h1>
 
-        <div class="controls">
-            <form action="/admin/users" method="GET" class="search-form">
-                <input type="text" name="search" placeholder="Buscar por usuario o email..." value="<%= searchTerm %>">
-                <button type="submit">Buscar</button>
-                <% if (searchTerm) { %>
-                    <a href="/admin/users">Limpiar</a> <% } %>
-            </form>
-            <a href="/admin/users/new" class="btn-create">Crear Nuevo Usuario</a>
+        <div class="table-controls">
+             <div class="search-create-group">
+                <input type="text" id="user-search" placeholder="Buscar interactivamente...">
+                <a href="/admin/users/new" class="btn-create">Crear Nuevo Usuario</a>
+             </div>
+             </div>
+
+        <div class="table-container">
+            <table id="users-table">
+                <thead>
+                    <tr>
+                        <th data-column="id" data-type="number">ID <span class="sort-arrow"></span></th>
+                        <th data-column="username" data-type="string">Username <span class="sort-arrow"></span></th>
+                        <th data-column="email" data-type="string">Email <span class="sort-arrow"></span></th>
+                        <th data-column="role" data-type="string">Rol <span class="sort-arrow"></span></th>
+                        <th data-column="created_at" data-type="date">Registrado <span class="sort-arrow"></span></th>
+                        <th>Acciones</th> </tr>
+                </thead>
+                <tbody id="users-table-body">
+                    <% if (users && users.length > 0) { %>
+                        <% users.forEach(u => { %>
+                            <tr data-created-at="<%= u.created_at %>">
+                                <td><%= u.id %></td>
+                                <td><%= u.username %></td>
+                                <td><%= u.email %></td>
+                                <td><%= u.role %></td>
+                                <td><%= new Date(u.created_at).toLocaleDateString() %></td>
+                                <td class="actions">
+                                    <a href="/admin/users/<%= u.id %>/edit" class="btn-edit">Editar</a>
+                                    <form action="/admin/users/<%= u.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar a este usuario?');">
+                                         <button type="submit" class="btn-delete">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" class="no-users">No hay usuarios registrados.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+             <% if (!(users && users.length > 0)) { %>
+                <p class="no-users">No hay usuarios para mostrar.</p>
+             <% } %>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Registrado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (users && users.length > 0) { %>
-                    <% users.forEach(u => { %>
-                        <tr>
-                            <td><%= u.id %></td>
-                            <td><%= u.username %></td>
-                            <td><%= u.email %></td>
-                            <td><%= u.role %></td>
-                            <td><%= new Date(u.created_at).toLocaleDateString() %></td>
-                            <td class="actions">
-                                <a href="/admin/users/<%= u.id %>/edit" class="btn-edit">Editar</a>
-                                <form action="/admin/users/<%= u.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar a este usuario?');">
-                                    <button type="submit" class="btn-delete">Eliminar</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <% }); %>
-                <% } else { %>
-                    <tr>
-                        <td colspan="6" class="no-users">
-                            <% if (searchTerm) { %>
-                                No se encontraron usuarios que coincidan con "<%= searchTerm %>".
-                            <% } else { %>
-                                No hay usuarios registrados.
-                            <% } %>
-                        </td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
+        <div class="pagination-controls" id="pagination-controls-container" style="<%= !(users && users.length > 0) ? 'display: none;' : '' %>">
+            <div class="rows-per-page">
+                <label for="rows-per-page-select">Filas por página:</label>
+                <select id="rows-per-page-select">
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+            <div class="page-info" id="page-info"></div>
+            <div class="page-buttons">
+                 <div class="page-number-buttons" id="page-number-buttons" style="display: inline-block; margin-right: 10px;">
+                    </div>
+                 <button id="prev-page" disabled>Anterior</button>
+                 <button id="next-page" disabled>Siguiente</button>
+            </div>
+        </div>
+
     </div>
 
-    </body>
-</html>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const table = document.getElementById('users-table');
+            const tableBody = document.getElementById('users-table-body');
+            const searchInput = document.getElementById('user-search');
+            const rowsPerPageSelect = document.getElementById('rows-per-page-select');
+            const paginationControlsContainer = document.getElementById('pagination-controls-container');
+            const pageInfo = document.getElementById('page-info');
+            const prevButton = document.getElementById('prev-page');
+            const nextButton = document.getElementById('next-page');
+            const pageNumberButtonsContainer = document.getElementById('page-number-buttons');
 
+            let originalRows = Array.from(tableBody.querySelectorAll('tr')); // Guardar filas originales
+            let filteredRows = [...originalRows]; // Filas después de aplicar búsqueda
+            let sortedRows = [...filteredRows]; // Filas después de aplicar ordenamiento
+            let currentPage = 1;
+            let rowsPerPage = parseInt(rowsPerPageSelect.value, 10);
+            let sortColumn = null;
+            let sortDirection = 'asc'; // 'asc' o 'desc'
+
+            // --- FUNCIÓN PRINCIPAL DE RENDERIZADO ---
+            function renderTable() {
+                if (!tableBody) return; // Salir si no hay tabla
+
+                // 1. Filtrar (Búsqueda)
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                filteredRows = originalRows.filter(row => {
+                    // Ignorar si es la fila de "No hay usuarios"
+                    if (row.querySelector('.no-users')) return false;
+                    const cells = row.querySelectorAll('td');
+                    // Buscar en ID, Username, Email, Rol (ignorar acciones y fecha formateada)
+                    return Array.from(cells).slice(0, 4).some(cell =>
+                        cell.textContent.toLowerCase().includes(searchTerm)
+                    );
+                });
+
+                // 2. Ordenar
+                if (sortColumn) {
+                    const columnIndex = getColumnIndex(sortColumn);
+                    const dataType = getColumnDataType(sortColumn);
+                    sortedRows = [...filteredRows].sort((a, b) => {
+                        let valA = getCellValue(a, columnIndex, dataType);
+                        let valB = getCellValue(b, columnIndex, dataType);
+
+                        if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+                        if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+                        return 0;
+                    });
+                } else {
+                    sortedRows = [...filteredRows]; // Sin ordenar o usar orden original
+                }
+
+                // 3. Paginar y Mostrar
+                displayPage();
+                updatePaginationControls();
+
+                 // Mostrar/Ocultar controles si no hay filas
+                if (originalRows.length === 0) {
+                     paginationControlsContainer.style.display = 'none';
+                } else {
+                     paginationControlsContainer.style.display = 'flex'; // o el display original
+                }
+            }
+
+            // --- LÓGICA DE PAGINACIÓN ---
+            function displayPage() {
+                if (!tableBody) return;
+                tableBody.innerHTML = ''; // Limpiar tabla actual
+                const totalRows = sortedRows.length;
+
+                if (totalRows === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="no-users">No se encontraron usuarios con ese filtro.</td></tr>';
+                    return;
+                }
+
+                const startIndex = (currentPage - 1) * rowsPerPage;
+                const endIndex = startIndex + rowsPerPage;
+                const rowsToShow = sortedRows.slice(startIndex, endIndex);
+
+                rowsToShow.forEach(row => tableBody.appendChild(row));
+            }
+
+            function updatePaginationControls() {
+                const totalRows = sortedRows.length;
+                const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+                // Validar currentPage
+                if (currentPage > totalPages && totalPages > 0) {
+                    currentPage = totalPages;
+                    // Volver a renderizar si la página cambió
+                    displayPage();
+                } else if (currentPage < 1) {
+                    currentPage = 1;
+                }
+
+
+                // Actualizar información de página
+                const startRow = totalRows === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
+                const endRow = Math.min(currentPage * rowsPerPage, totalRows);
+                pageInfo.textContent = totalRows > 0
+                    ? `Mostrando ${startRow}-${endRow} de ${totalRows} usuarios`
+                    : 'No hay usuarios para mostrar';
+
+                // Habilitar/Deshabilitar botones Anterior/Siguiente
+                prevButton.disabled = currentPage === 1;
+                nextButton.disabled = currentPage === totalPages || totalPages === 0;
+
+                // Generar botones de número de página
+                generatePageNumberButtons(totalPages);
+            }
+
+            function generatePageNumberButtons(totalPages) {
+                 pageNumberButtonsContainer.innerHTML = ''; // Limpiar botones existentes
+                 const maxButtons = 5; // Máximo de botones a mostrar (ej: 1 ... 4 5 6 ... 10)
+
+                 if (totalPages <= 1) return; // No mostrar botones si hay 0 o 1 página
+
+                 let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+                 let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+                 // Ajustar si estamos cerca del final
+                 if (endPage - startPage + 1 < maxButtons) {
+                      startPage = Math.max(1, endPage - maxButtons + 1);
+                 }
+
+                 // Botón "Primera" si es necesario
+                 if (startPage > 1) {
+                      pageNumberButtonsContainer.appendChild(createPageButton(1));
+                      if (startPage > 2) {
+                           pageNumberButtonsContainer.appendChild(createEllipsis());
+                      }
+                 }
+
+                 // Botones numéricos
+                 for (let i = startPage; i <= endPage; i++) {
+                      pageNumberButtonsContainer.appendChild(createPageButton(i));
+                 }
+
+                 // Botón "Última" si es necesario
+                 if (endPage < totalPages) {
+                      if (endPage < totalPages - 1) {
+                           pageNumberButtonsContainer.appendChild(createEllipsis());
+                      }
+                      pageNumberButtonsContainer.appendChild(createPageButton(totalPages));
+                 }
+            }
+
+            function createPageButton(pageNumber) {
+                 const button = document.createElement('button');
+                 button.textContent = pageNumber;
+                 button.dataset.page = pageNumber;
+                 if (pageNumber === currentPage) {
+                      button.classList.add('active');
+                 }
+                 button.addEventListener('click', () => {
+                      currentPage = pageNumber;
+                      renderTable();
+                 });
+                 return button;
+            }
+
+            function createEllipsis() {
+                 const span = document.createElement('span');
+                 span.textContent = '...';
+                 span.style.padding = '0 5px';
+                 span.style.color = '#6c757d';
+                 return span;
+            }
+
+            // --- LÓGICA DE ORDENAMIENTO ---
+            function handleSort(event) {
+                const header = event.target.closest('th'); // Asegurarse de obtener el TH
+                if (!header || !header.dataset.column) return; // No es un encabezado ordenable
+
+                const newSortColumn = header.dataset.column;
+
+                if (sortColumn === newSortColumn) {
+                    // Cambiar dirección si se hace clic en la misma columna
+                    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    // Nueva columna, ordenar ascendente por defecto
+                    sortColumn = newSortColumn;
+                    sortDirection = 'asc';
+                }
+
+                // Actualizar indicadores visuales
+                updateSortIndicators();
+
+                // Volver a renderizar la tabla con el nuevo orden
+                currentPage = 1; // Volver a la primera página al ordenar
+                renderTable();
+            }
+
+            function updateSortIndicators() {
+                table.querySelectorAll('th[data-column]').forEach(th => {
+                    th.classList.remove('sort-asc', 'sort-desc');
+                    if (th.dataset.column === sortColumn) {
+                        th.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+                    }
+                });
+            }
+
+            function getColumnIndex(columnName) {
+                const headers = Array.from(table.querySelectorAll('thead th'));
+                return headers.findIndex(th => th.dataset.column === columnName);
+            }
+
+             function getColumnDataType(columnName) {
+                 const header = table.querySelector(`th[data-column="${columnName}"]`);
+                 return header ? header.dataset.type : 'string'; // Default a string
+             }
+
+            function getCellValue(row, index, type) {
+                const cell = row.cells[index];
+                let value = cell ? cell.textContent.trim() : '';
+
+                switch (type) {
+                    case 'number':
+                        return parseFloat(value) || 0;
+                    case 'date':
+                        // Usar el valor original guardado en data-attribute
+                        const dateValue = row.dataset.createdAt;
+                        return dateValue ? new Date(dateValue).getTime() : 0; // Comparar como timestamp
+                    case 'string':
+                    default:
+                        return value.toLowerCase(); // Comparar strings sin importar mayúsculas
+                }
+            }
+
+
+            // --- EVENT LISTENERS ---
+            searchInput.addEventListener('input', () => {
+                currentPage = 1; // Volver a la primera página al buscar
+                renderTable();
+            });
+
+            rowsPerPageSelect.addEventListener('change', (event) => {
+                rowsPerPage = parseInt(event.target.value, 10);
+                currentPage = 1; // Volver a la primera página
+                renderTable();
+            });
+
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                }
+            });
+
+            nextButton.addEventListener('click', () => {
+                 const totalRows = sortedRows.length;
+                 const totalPages = Math.ceil(totalRows / rowsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                }
+            });
+
+            // Añadir listeners a los encabezados para ordenar
+            table.querySelectorAll('thead th[data-column]').forEach(header => {
+                header.addEventListener('click', handleSort);
+            });
+
+            // --- INICIALIZACIÓN ---
+            if (originalRows.length > 0 && !originalRows[0].querySelector('.no-users')) {
+                 renderTable(); // Renderizar tabla inicial si hay datos
+            } else {
+                 // Ocultar controles si la tabla está vacía inicialmente
+                 paginationControlsContainer.style.display = 'none';
+            }
+
+        });
+    </script>
+
+</body>
+</html>
