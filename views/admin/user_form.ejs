@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %></title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }
+        .navbar { background-color: #343a40; padding: 0.8rem 1.5rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .navbar a { color: white; text-decoration: none; padding: 0.5rem; }
+        .navbar .brand { font-size: 1.2rem; font-weight: bold; }
+        .navbar .nav-links a { margin-left: 1rem; }
+        .navbar .logout-link { background-color: #dc3545; border-radius: 4px; padding: 0.4rem 0.8rem; }
+        .navbar .logout-link:hover { background-color: #c82333; }
+        .container { max-width: 760px; margin: 2rem auto; padding: 2rem; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-bottom: 1.5rem; text-align: center; }
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 0.5rem; color: #555; font-weight: bold; }
+        input[type="text"], input[type="email"], input[type="password"], select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Para incluir padding en el width */
+            font-size: 1rem;
+        }
+        select { appearance: none; /* Quitar estilo por defecto */ background-color: white; } /* Para mejor visualización en algunos navegadores */
+        button[type="submit"] {
+            display: inline-block; /* Para centrar si es necesario */
+            width: auto; /* Ajustar al contenido */
+            padding: 0.75rem 1.5rem;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+        button[type="submit"]:hover { background-color: #218838; }
+        .btn-cancel {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-left: 0.5rem; /* Espacio entre botones */
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+        .btn-cancel:hover { background-color: #5a6268; }
+        .form-actions { text-align: center; margin-top: 1.5rem; }
+        .error-message { color: red; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/home" class="brand">Ery Project - Admin</a>
+        <div class="nav-links">
+            <a href="/home">Home</a>
+            <a href="/admin/users">Gestionar Usuarios</a>
+            <span style="color: #ccc; margin-left: 1rem; margin-right: 1rem;">Usuario: <%= user.username %></span>
+            <a href="/logout" class="logout-link">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1><%= pageTitle %></h1>
+
+        <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+            <div class="error-message"><%= errorMessage %></div>
+        <% } %>
+
+        <form action="<%= editing ? '/admin/users/' + userData.id + '/update' : '/admin/users/create' %>" method="POST">
+
+            <div class="form-group">
+                <label for="username">Nombre de Usuario:</label>
+                <input type="text" id="username" name="username" value="<%= typeof userData !== 'undefined' ? userData.username : '' %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Correo Electrónico:</label>
+                <input type="email" id="email" name="email" value="<%= typeof userData !== 'undefined' ? userData.email : '' %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña<% if (editing) { %> (Dejar en blanco para no cambiar)<% } %>:</label>
+                <input type="password" id="password" name="password" <% if (!editing) { %>required<% } %>>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Rol:</label>
+                <select id="role" name="role" required>
+                    <option value="user" <%= (typeof userData !== 'undefined' && userData.role === 'user') ? 'selected' : '' %>>Usuario</option>
+                    <option value="admin" <%= (typeof userData !== 'undefined' && userData.role === 'admin') ? 'selected' : '' %>>Administrador</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit"><%= editing ? 'Actualizar Usuario' : 'Crear Usuario' %></button>
+                <a href="/admin/users" class="btn-cancel">Cancelar</a>
+            </div>
+
+        </form>
+    </div>
+
+</body>
+</html>

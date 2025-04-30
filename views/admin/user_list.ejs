@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %></title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }
+        .navbar { background-color: #343a40; padding: 0.8rem 1.5rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .navbar a { color: white; text-decoration: none; padding: 0.5rem; }
+        .navbar .brand { font-size: 1.2rem; font-weight: bold; }
+        .navbar .nav-links a { margin-left: 1rem; }
+        .navbar .logout-link { background-color: #dc3545; border-radius: 4px; padding: 0.4rem 0.8rem; }
+        .navbar .logout-link:hover { background-color: #c82333; }
+        .container { max-width: 1140px; margin: 0 auto; padding: 0 1rem; }
+        h1 { color: #333; margin-bottom: 1rem; }
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;}
+        .search-form { display: flex; gap: 0.5rem; }
+        .search-form input[type="text"] { padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
+        .search-form button { padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .search-form button:hover { background-color: #0056b3; }
+        .search-form a { padding: 0.5rem 1rem; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; line-height: 1.5; } /* Alineación vertical */
+        .search-form a:hover { background-color: #5a6268; }
+        .btn-create { padding: 0.6rem 1rem; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px; }
+        .btn-create:hover { background-color: #218838; }
+        table { width: 100%; border-collapse: collapse; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; } /* Añadido overflow */
+        th, td { padding: 0.9rem; text-align: left; border-bottom: 1px solid #dee2e6; }
+        th { background-color: #e9ecef; color: #495057; }
+        tbody tr:hover { background-color: #f1f1f1; }
+        .actions a, .actions button { margin-right: 0.5rem; padding: 0.3rem 0.6rem; text-decoration: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .actions .btn-edit { background-color: #ffc107; color: #333; border: none; }
+        .actions .btn-edit:hover { background-color: #e0a800; }
+        .actions .btn-delete { background-color: #dc3545; color: white; border: none; }
+        .actions .btn-delete:hover { background-color: #c82333; }
+        .no-users { text-align: center; padding: 2rem; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/home" class="brand">Ery Project - Admin</a>
+        <div class="nav-links">
+            <a href="/home">Home</a>
+            <a href="/admin/users" style="font-weight: bold;">Gestionar Usuarios</a>
+            <span style="color: #ccc; margin-left: 1rem; margin-right: 1rem;">Usuario: <%= user.username %></span>
+            <a href="/logout" class="logout-link">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1><%= pageTitle %></h1>
+
+        <div class="controls">
+            <form action="/admin/users" method="GET" class="search-form">
+                <input type="text" name="search" placeholder="Buscar por usuario o email..." value="<%= searchTerm %>">
+                <button type="submit">Buscar</button>
+                <% if (searchTerm) { %>
+                    <a href="/admin/users">Limpiar</a> <% } %>
+            </form>
+            <a href="/admin/users/new" class="btn-create">Crear Nuevo Usuario</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Registrado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (users && users.length > 0) { %>
+                    <% users.forEach(u => { %>
+                        <tr>
+                            <td><%= u.id %></td>
+                            <td><%= u.username %></td>
+                            <td><%= u.email %></td>
+                            <td><%= u.role %></td>
+                            <td><%= new Date(u.created_at).toLocaleDateString() %></td>
+                            <td class="actions">
+                                <a href="/admin/users/<%= u.id %>/edit" class="btn-edit">Editar</a>
+                                <form action="/admin/users/<%= u.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar a este usuario?');">
+                                    <button type="submit" class="btn-delete">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6" class="no-users">
+                            <% if (searchTerm) { %>
+                                No se encontraron usuarios que coincidan con "<%= searchTerm %>".
+                            <% } else { %>
+                                No hay usuarios registrados.
+                            <% } %>
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    </body>
+</html>
+
